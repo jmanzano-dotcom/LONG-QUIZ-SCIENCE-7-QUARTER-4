@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCIENCE 7 LONG QUIZ QUARTER 4</title>
+
+<style>
+    body {
+        font-family: "Times New Roman", serif;
+        background: #f2f2f2;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+    }
+
+    .phone {
+        width: 100%;
+        max-width: 420px;
+        background: white;
+        min-height: 100vh;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    h1, h2 {
+        text-align: center;
+    }
+
+    .slide {
+        display: none;
+    }
+
+    .slide.active {
+        display: block;
+    }
+
+    .choice {
+        border: 1px solid #333;
+        padding: 12px;
+        margin: 10px 0;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    .choice.correct {
+        background: #c8f7c5;
+        border-color: green;
+    }
+
+    .choice.wrong {
+        background: #f7c5c5;
+        border-color: red;
+    }
+
+    input {
+        width: 100%;
+        padding: 10px;
+        font-size: 18px;
+        margin-top: 15px;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        margin-top: 15px;
+        font-size: 18px;
+        cursor: pointer;
+    }
+
+    canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="phone">
+
+    <!-- Name Slide -->
+    <div class="slide active">
+        <h1>SCIENCE 7 LONG QUIZ<br>QUARTER 4</h1>
+        <h2>Enter your name</h2>
+        <input type="text" id="studentName" placeholder="Your name">
+        <button onclick="startQuiz()">Start Quiz</button>
+    </div>
+
+    <!-- Quiz Slides will be injected here -->
+
+    <!-- Result Slide -->
+    <div class="slide" id="resultSlide">
+        <h1 id="resultText"></h1>
+    </div>
+
+</div>
+
+<canvas id="confetti"></canvas>
+
+<script>
+const questions = [
+ {q:"According to the angle of the fault plane, what geological fault has an inclined fault plane and vertical movement of rock?",
+  c:["Dip-slip","Oblique-slip","Strike-slip","Thrust"], a:1},
+ {q:"Which fault has a nearly vertical fault plane and horizontal movement of rocks?",
+  c:["Normal","Oblique-slip","Reverse","Strike-slip"], a:3},
+ {q:"Which fault occurs when the hanging wall moves downward relative to the footwall?",
+  c:["Normal","Reverse","Strike-slip","Thrust"], a:0},
+ {q:"Which does NOT belong to faults according to angle of fault plane?",
+  c:["Dip-slip","Normal","Oblique-slip","Strike-slip"], a:1},
+ {q:"Why do high-magnitude earthquakes cause greater damage?",
+  c:["Only near cities","Deeper underground","Release more energy","Last longer"], a:2},
+ {q:"Effect of a low-magnitude earthquake?",
+  c:["Buildings collapse","Serious injuries","Minor shaking is felt","Services shut down"], a:2},
+ {q:"Why are weak structures damaged in moderate earthquakes?",
+  c:["Rural areas","Far from epicenter","Light materials","Strong enough"], a:2},
+ {q:"How do high-magnitude earthquakes affect services?",
+  c:["No effect","Only at night","Services improve","Services may stop"], a:3},
+ {q:"Why do dense communities experience greater impact?",
+  c:["Taller buildings","Rural avoided","Near volcanoes","More people & unsafe structures"], a:3},
+ {q:"Exit is blocked during evacuation. What should you do?",
+  c:["Run to any exit","Remove debris","Wait inside","Use alternative marked exit"], a:3},
+ {q:"Student wants to go home before headcount. What follows procedure?",
+  c:["Allow immediately","Ignore rule","Go with classmate","Stay until clearance"], a:3},
+ {q:"Which action follows household safety guidelines?",
+  c:["Turn off gas after smelling gas","Light candle","Turn on appliances","Wait"], a:0},
+ {q:"What action follows re-entry safety rule?",
+  c:["Enter quickly","Wait for clearance","Enter with gear","Inspect with friends"], a:1},
+ {q:"Waves caused by undersea earthquake are called?",
+  c:["Floods","Hurricanes","Tornadoes","Tsunamis"], a:3},
+ {q:"Why can undersea earthquakes cause tsunamis?",
+  c:["Melts ice","Warms water","Shakes air","Ocean floor displaces water"], a:3}
+];
+
+let current = 0;
+let score = 0;
+let name = "";
+
+const phone = document.querySelector(".phone");
+
+function startQuiz() {
+    name = document.getElementById("studentName").value.trim();
+    if (!name) return alert("Please enter your name");
+    showQuestion();
+}
+
+function showQuestion() {
+    document.querySelectorAll(".slide").forEach(s => s.classList.remove("active"));
+
+    if (current >= questions.length) {
+        document.getElementById("resultText").innerText =
+            `Congratulations ${name}! You got ${score}/${questions.length}!`;
+        document.getElementById("resultSlide").classList.add("active");
+        return;
+    }
+
+    const q = questions[current];
+    const slide = document.createElement("div");
+    slide.className = "slide active";
+
+    slide.innerHTML = `<h2>${current+1}. ${q.q}</h2>`;
+
+    q.c.forEach((choice, i) => {
+        const div = document.createElement("div");
+        div.className = "choice";
+        div.innerText = choice;
+        div.onclick = () => selectAnswer(div, i === q.a);
+        slide.appendChild(div);
+    });
+
+    phone.appendChild(slide);
+}
+
+function selectAnswer(element, correct) {
+    const choices = document.querySelectorAll(".choice");
+    choices.forEach(c => c.onclick = null);
+
+    if (correct) {
+        element.classList.add("correct");
+        score++;
+        launchConfetti();
+    } else {
+        element.classList.add("wrong");
+    }
+
+    setTimeout(() => {
+        current++;
+        showQuestion();
+    }, 1000);
+}
+
+/* Confetti Effect */
+const canvas = document.getElementById("confetti");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+function launchConfetti() {
+    let pieces = [];
+    for (let i=0;i<100;i++){
+        pieces.push({
+            x:Math.random()*canvas.width,
+            y:Math.random()*canvas.height,
+            r:Math.random()*6+4,
+            d:Math.random()*5+2
+        });
+    }
+
+    let frame = 0;
+    function draw(){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        pieces.forEach(p=>{
+            ctx.fillStyle = "green";
+            ctx.beginPath();
+            ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+            ctx.fill();
+            p.y += p.d;
+        });
+        frame++;
+        if(frame<30) requestAnimationFrame(draw);
+        else ctx.clearRect(0,0,canvas.width,canvas.height);
+    }
+    draw();
+}
+</script>
+
+</body>
+</html>
